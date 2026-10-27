@@ -2,7 +2,7 @@
 
 Vyuhika's native iPhone foundation for a clearer view of projects and finances.
 
-**Status:** engineering foundation only. The app shows a static, accessible placeholder; no financial tools, persistence, networking, analytics or cloud services are implemented. No sample balances are presented as user data.
+**Status:** engineering foundation only. The app includes four native destinations (Home, Money, Projects, Upcoming), adaptive Neon Orbit empty states and a preview-only Quick Add sheet; no financial tools, persistence, networking, analytics or cloud services are implemented. No sample balances are presented as user data.
 
 ## Development
 
@@ -14,7 +14,7 @@ Vyuhika's native iPhone foundation for a clearer view of projects and finances.
 
 ## Structure
 
-`ProjectLens/App` owns lifecycle; `Features` owns feature UI; `Shared/DesignSystem` owns Neon Orbit tokens. `Domain`, `Persistence`, and `Services` document intended boundaries without speculative protocols or implementations. `ProjectLensTests` and `ProjectLensUITests` cover app configuration and launch. See [architecture](docs/architecture.md), [PRD](docs/PRD.md), [design system](docs/design-system.md), and [ADR 0001](docs/decisions/0001-ios-first-architecture.md).
+`ProjectLens/App` owns lifecycle; `Features` owns feature UI; `Shared/DesignSystem` owns Neon Orbit tokens. `Domain`, `Persistence`, and `Services` document intended boundaries without speculative protocols or implementations. `ProjectLensTests` and `ProjectLensUITests` cover configuration, color contrast, reduced-motion policy, navigation and Quick Add presentation. See [architecture](docs/architecture.md), [PRD](docs/PRD.md), [design system](docs/design-system.md), and [ADR 0001](docs/decisions/0001-ios-first-architecture.md).
 
 ## Planned scope
 
@@ -24,4 +24,4 @@ Personal finance, project finance, subscriptions, budgets, invoices, cost alloca
 
 Copyright 2026 Vyuhika. Licensed under [Apache-2.0](LICENSE), approved by the project owner. This permits commercial reuse and proprietary forks, with an explicit patent grant and notice obligations. It does not grant trademark rights. Separate future cloud services may remain proprietary.
 
-Publication is pending verified GitHub authentication, repository inspection and successful simulator tests. No public repository availability is claimed.
+The configured remote is `Developer-YashGaur/vyuhika-projectlens`. Current remote availability and UI-milestone CI status cannot be verified from the restricted agent session. See [validation](docs/validation.md) for actual checks and remaining blockers.

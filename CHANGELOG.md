@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Adaptive light/dark Neon Orbit palette, rounded semantic typography, surfaces and motion tokens.
+- Four native tabs with individual navigation stacks and polished empty states.
+- One reusable Quick Add sheet with four preview-only entry types; no financial data is saved.
+- Navigation/sheet lifecycle UI tests and adaptive color contrast/reduced-motion unit tests.
+
 - Native iPhone SwiftUI foundation with ProjectLens identity and iOS 17 minimum target.
 - Neon Orbit semantic tokens and an accessible placeholder home.
 - Configuration unit tests, launch UI test, and iOS CI workflow.

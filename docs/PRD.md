@@ -17,7 +17,7 @@ Future exploration: cloud synchronization, automated provider integrations, coll
 
 ## Current milestone
 
-Deliver a buildable native shell, accessible design tokens, baseline tests, documented architectural boundaries and a reviewable public-source foundation. No onboarding, backend, money calculations or financial records are part of this milestone.
+Refine Neon Orbit and provide four native destinations (Home, Money, Projects, Upcoming) with honest empty states and a preview-only Quick Add entry-type sheet. Support system appearances, Dynamic Type, VoiceOver and Reduce Motion. No onboarding, backend, money calculations or financial records are part of this milestone.
 
 ## Product constraints
 

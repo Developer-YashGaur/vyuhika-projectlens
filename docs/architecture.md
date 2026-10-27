@@ -2,18 +2,18 @@
 
 ## Current foundation
 
-One native SwiftUI application target with one unit-test target and one UI-test target. No external packages. `ProjectLensApp` launches `HomeView`; `NeonOrbit` contains semantic design tokens. No backend, database, authentication, dependency container or financial model is implemented.
+One native SwiftUI application target with one unit-test target and one UI-test target. No external packages. `ProjectLensApp` launches `NavigationShell`; `NeonOrbit` contains adaptive semantic design tokens. Each of the four native tabs owns a NavigationStack. The shell owns tab selection and one Quick Add sheet presentation state; the reusable sheet owns only its transient entry-type selection. `OrbitEmptyState` supplies the shared scrollable empty-state layout, reused by Home and the other destinations. No backend, database, authentication, dependency container or financial model is implemented.
 
 | Location | Responsibility |
 | --- | --- |
 | App | Application lifecycle and eventual composition |
-| Features | Feature UI and state, starting with placeholder Home |
+| Features | Feature UI and state: Home and preview-only Quick Add |
 | Shared/DesignSystem | Shared visual tokens and future reusable components |
 | Domain | Future money value types and deterministic financial rules |
 | Persistence | Future storage adapters and migrations |
 | Services | Future network/provider adapters |
-| ProjectLensTests | Hosted configuration and future domain unit tests |
-| ProjectLensUITests | Launch and future user-flow tests |
+| ProjectLensTests | Hosted configuration, adaptive contrast and motion-policy tests |
+| ProjectLensUITests | Navigation, sheet lifecycle and accessibility-size smoke tests |
 | docs | Product decisions, architecture and design guidance |
 
 Domain, Persistence and Services currently contain boundary documentation only. Keep one app module until real complexity justifies extracting packages. Do not introduce generic repositories, protocols, state frameworks or service locators speculatively.

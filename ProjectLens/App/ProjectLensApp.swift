@@ -4,7 +4,7 @@ import SwiftUI
 struct ProjectLensApp: App {
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            NavigationShell()
         }
     }
 }
