@@ -6,7 +6,8 @@ final class LaunchTests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         for title in ["Home", "Money", "Projects", "Upcoming"] {
-            let tab = app.tabBars.buttons[title]
+            // Native tab accessibility containers vary across iOS versions.
+            let tab = app.buttons[title]
             XCTAssertTrue(tab.waitForExistence(timeout: 10))
             tab.tap()
             XCTAssertTrue(tab.isSelected)
@@ -62,6 +63,11 @@ final class LaunchTests: XCTestCase {
         XCTAssertTrue(transfer.isHittable)
         transfer.tap()
         XCTAssertEqual(transfer.value as? String, "Selected")
-        XCTAssertTrue(app.buttons["quickAdd.done"].isHittable)
+        let done = app.buttons["quickAdd.done"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        XCTAssertTrue(done.isHittable)
+        done.tap()
+        XCTAssertTrue(quickAdd.waitForExistence(timeout: 5))
+        XCTAssertTrue(quickAdd.isHittable)
     }
 }

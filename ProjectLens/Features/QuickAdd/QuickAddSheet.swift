@@ -69,11 +69,21 @@ struct QuickAddSheet: View {
             .foregroundStyle(NeonOrbit.primaryText)
             .navigationTitle("Quick Add")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                        .accessibilityIdentifier("quickAdd.done")
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                Button { dismiss() } label: {
+                    Text("Done")
+                        .font(NeonOrbit.Typography.label)
+                        .frame(maxWidth: .infinity, minHeight: 44)
                 }
+                .buttonStyle(.borderedProminent)
+                .buttonBorderShape(.roundedRectangle(radius: NeonOrbit.Radius.control))
+                .tint(NeonOrbit.actionFill)
+                .foregroundStyle(NeonOrbit.onAction)
+                .accessibilityIdentifier("quickAdd.done")
+                .padding(NeonOrbit.Spacing.medium)
+                .frame(maxWidth: 600)
+                .frame(maxWidth: .infinity)
+                .background(NeonOrbit.background)
             }
         }
         .tint(NeonOrbit.accent)

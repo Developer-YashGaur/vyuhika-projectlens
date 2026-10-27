@@ -33,7 +33,7 @@ Spacing tokens: 4, 8, 16, 24, 32 and 48 pt. Controls have 16 pt radii; cards hav
 
 `OrbitEmptyState` shares the visual layout while each destination has its own copy. These are honest previews of planned tools, not populated product screens. No sums, records, schedules or projects are fabricated.
 
-`QuickAddSheet` is a reusable native large sheet with scrollable type rows and a persistent Done control. Expense, Income, Recurring commitment and Transfer can be selected to preview the category. An explicit notice explains that forms and saving are unavailable. Selection resets on reopening. There is no transaction form, save action or financial calculation.
+`QuickAddSheet` is a reusable native large sheet with scrollable type rows and a Done control pinned in a bottom safe-area inset. Done stays outside the scrolling content, including at accessibility text sizes; it does not depend on system toolbar visibility. Expense, Income, Recurring commitment and Transfer can be selected to preview the category. An explicit notice explains that forms and saving are unavailable. Selection resets on reopening. There is no transaction form, save action or financial calculation.
 
 ## Accessibility and motion
 
