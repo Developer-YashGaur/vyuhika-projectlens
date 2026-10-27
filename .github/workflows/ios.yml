@@ -16,17 +16,20 @@ jobs:
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Show toolchain
         run: xcodebuild -version
       - name: Build and test
         run: bash scripts/ci-ios.sh
+      - name: Collect test diagnostics
+        if: always()
+        run: python3 scripts/report-ios-test-failures.py
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ios-test-results
-          path: build/*.xcresult
-          if-no-files-found: ignore
+          path: build/test-diagnostics/
+          if-no-files-found: warn
