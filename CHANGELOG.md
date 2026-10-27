@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Integrated approved Koshvya AppIcon and Home logo without changing finance behavior.
+
 - User-facing Koshvya identity, preserving internal ProjectLens project and bundle identity.
 - Local income/expense CRUD, exact per-currency totals and functional Quick Add forms.
 - Atomic versioned local persistence, validation, safe error/loading states and isolated tests.

@@ -5,6 +5,7 @@ A local finance and project intelligence app by Vyuhika, built for iPhone with t
 ## Implemented
 
 - Native Home, Money, Projects and Upcoming navigation with adaptive light/dark styling.
+- Approved Koshvya iPhone app icon and Home logo.
 - Create, read, edit and delete income/expense entries: positive amount, currency, category, date, notes and optional project label.
 - Home all-time income, expense and net totals from saved entries, kept separate by currency.
 - Quick Add forms, validation, atomic local persistence, loading/retry states and delete confirmation.
@@ -31,6 +32,6 @@ An actor serializes file access; atomic writes and iOS complete file protection 
 
 ## Documentation and release work
 
-See [architecture](docs/architecture.md), [PRD](docs/PRD.md), [design system](docs/design-system.md) and [icon deliverables](docs/branding.md). App icon artwork, signing, privacy disclosures, minimum-runtime and device accessibility verification remain release requirements.
+See [architecture](docs/architecture.md), [PRD](docs/PRD.md), [design system](docs/design-system.md) and [icon deliverables](docs/branding.md). Signing, privacy disclosures, minimum-runtime and device accessibility verification remain release requirements.
 
 Copyright 2026 Vyuhika. [Apache-2.0](LICENSE). Repository history retains the former ProjectLens name.

@@ -1,5 +1,18 @@
 # Foundation validation
 
+## Phase 2.1 approved branding — 2026-10-27
+
+Branch: `feat/koshvya-approved-branding`, based on current `origin/main` (fetched and matched before publication). Main was not modified.
+
+- Final simulator execution: **19 unit tests and 6 UI tests passed, zero failures**, recorded in `build/branding-final-tests.log`. Includes all existing ledger/finance/navigation tests, asset bundle metadata checks, Home logo assertions with empty/saved ledgers, accessibility-size Quick Add reachability and the installed Springboard icon. Xcode stalled after reporting passed suites while finalizing full-suite diagnostics; a finalized full-suite xcresult and clean process exit are not claimed. The initial 24-test run also passed its tests and stalled in diagnostics.
+- Focused branding UI runs completed with **TEST SUCCEEDED**. `build/BrandingVisualFinal.xcresult` retains Home and iPhone Home Screen screenshots; exported images are in `build/branding-final-screenshots/`. Visually verified approved logo proportions, readable light-mode Home title and the approved installed Koshvya icon. Fixed the dark logo backing extending behind the navigation title during visual QA.
+- Final unsigned Release generic iPhone build: **BUILD SUCCEEDED**, log `build/branding-release-final.log`. Built Info.plist selects AppIcon, display name Koshvya, unchanged bundle ID and iPhone-only family.
+- Both approved PNGs are copied byte-for-byte into the asset catalog; original icon is 1024×1024 with no alpha, logo is 1448×1086 with alpha. Asset JSON parsing, project plist lint and `git diff --check` pass.
+- Validation used Xcode 27.1 (27A9275), booted iPhone 18 Pro / iOS 27.0, with host access approved for builds and CoreSimulator. No sandbox workaround compiler flag was needed or committed. Runtime emitted SDK/build-version, duplicate simulator accessibility class and transient invalid-frame warnings; no test assertion failed.
+
+Physical-device review, minimum-iOS 17 runtime validation, complete light/dark/VoiceOver audit, signing and App Store packaging remain release work. Historical blockers below describe earlier milestones; branding assets are now supplied and integrated.
+
+
 ## Koshvya local-finance milestone — current validation
 
 Branch: `feat/koshvya-local-finance`, based on local main `ec711e7`. Work is isolated in `/tmp/koshvya-local-finance` because workspace Git metadata is read-only to the agent. Current remote main could not be fetched/verified. Foundation/navigation notes below are historical.
