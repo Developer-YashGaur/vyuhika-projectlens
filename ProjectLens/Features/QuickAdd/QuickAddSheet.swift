@@ -65,6 +65,7 @@ struct QuickAddSheet: View {
                 .frame(maxWidth: 600, alignment: .leading)
                 .frame(maxWidth: .infinity)
             }
+            .accessibilityIdentifier("quickAdd.entries")
             .background(NeonOrbit.background.ignoresSafeArea())
             .foregroundStyle(NeonOrbit.primaryText)
             .navigationTitle("Quick Add")

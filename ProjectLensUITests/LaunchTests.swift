@@ -26,10 +26,18 @@ final class LaunchTests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         app.buttons["quickAdd.open"].tap()
+        let entries = app.scrollViews["quickAdd.entries"]
+        let done = app.buttons["quickAdd.done"]
+        XCTAssertTrue(entries.waitForExistence(timeout: 5))
         for identifier in ["expense", "income", "recurringCommitment", "transfer"] {
             let entry = app.buttons["quickAdd.\(identifier)"]
-            if !entry.isHittable { app.swipeUp() }
+            // Partly exposed rows can be hittable while their tap point is under Done.
+            for _ in 0..<8 {
+                if entry.isHittable && entry.frame.maxY < done.frame.minY { break }
+                entries.swipeUp()
+            }
             XCTAssertTrue(entry.isHittable)
+            XCTAssertLessThan(entry.frame.maxY, done.frame.minY)
             entry.tap()
             XCTAssertEqual(entry.value as? String, "Selected")
         }
