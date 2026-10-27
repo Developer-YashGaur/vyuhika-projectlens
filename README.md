@@ -1,27 +1,36 @@
-# ProjectLens
+# Koshvya
 
-Vyuhika's native iPhone foundation for a clearer view of projects and finances.
+A local finance and project intelligence app by Vyuhika, built for iPhone with the Neon Orbit design language.
 
-**Status:** engineering foundation only. The app includes four native destinations (Home, Money, Projects, Upcoming), adaptive Neon Orbit empty states and a preview-only Quick Add sheet; no financial tools, persistence, networking, analytics or cloud services are implemented. No sample balances are presented as user data.
+## Implemented
+
+- Native Home, Money, Projects and Upcoming navigation with adaptive light/dark styling.
+- Create, read, edit and delete income/expense entries: positive amount, currency, category, date, notes and optional project label.
+- Home all-time income, expense and net totals from saved entries, kept separate by currency.
+- Quick Add forms, validation, atomic local persistence, loading/retry states and delete confirmation.
+
+Projects and Upcoming remain honest planned-feature screens. Transfers and recurring commitments are labeled not yet available. No backend, authentication, account connection, AI, synchronization or conversion is implemented. No real-looking sample financial records are seeded.
 
 ## Development
 
-- Open `ProjectLens.xcodeproj`, select the shared `ProjectLens` scheme and an iPhone simulator.
-- Minimum deployment: iOS 17.0. Local toolchain verified: Xcode 27.1 / Swift 6.4; Swift 6 language mode. CI uses Xcode 26.6 on `macos-26` to validate a stable baseline.
-- No third-party packages or project generator are required. The checked-in Xcode project is authoritative.
-- Run `bash scripts/ci-ios.sh` to build and run unit/UI tests on an available iPhone simulator. Results: `build/TestResults-*.xcresult`.
-- For a physical device, select your own signing team in Xcode. Credentials and signing assets must remain local.
+Open `ProjectLens.xcodeproj`, select the shared `ProjectLens` scheme and an iPhone simulator. Minimum iOS 17, Swift 6, no third-party packages. The internal project/target names and `com.vyuhika.projectlens` bundle ID deliberately remain stable; the display name is Koshvya.
 
-## Structure
+```bash
+bash scripts/ci-ios.sh
+```
 
-`ProjectLens/App` owns lifecycle; `Features` owns feature UI; `Shared/DesignSystem` owns Neon Orbit tokens. `Domain`, `Persistence`, and `Services` document intended boundaries without speculative protocols or implementations. `ProjectLensTests` and `ProjectLensUITests` cover configuration, color contrast, reduced-motion policy, navigation and Quick Add presentation. See [architecture](docs/architecture.md), [PRD](docs/PRD.md), [design system](docs/design-system.md), and [ADR 0001](docs/decisions/0001-ios-first-architecture.md).
+CI remains Xcode 26.6 on macos-26 with required build/test status and always-run xcresult diagnostics/artifacts. Local toolchain: Xcode 27.1. See [validation](docs/validation.md) for actual results and environment restrictions.
 
-## Planned scope
+## Local data
 
-Personal finance, project finance, subscriptions, budgets, invoices, cost allocation, release planning and financial intelligence. Future exploration includes sync, provider integrations, collaboration and AI-supported insights. These are plans, not shipped capabilities or delivery commitments.
+The versioned ledger is in Application Support/Koshvya/ledger-v1.json inside the app sandbox. Decimal amounts are stored as exact strings; no binary floating-point money arithmetic is used. Supported currencies: INR, USD, EUR, GBP (2 decimal places), JPY (0), KWD (3). Amounts must be positive with at most 12 whole-number digits. Grouping, symbols and scientific notation are rejected; the current locale's decimal separator or canonical dot is accepted. Excess precision is rejected, never silently rounded.
 
-## License
+The form defaults to INR and always shows the currency. Totals are all-time recorded flows, not bank balances. Project association is a user-entered label, not a project database relationship. Editing currency relabels the entry; it does not perform conversion.
 
-Copyright 2026 Vyuhika. Licensed under [Apache-2.0](LICENSE), approved by the project owner. This permits commercial reuse and proprietary forks, with an explicit patent grant and notice obligations. It does not grant trademark rights. Separate future cloud services may remain proprietary.
+An actor serializes file access; atomic writes and iOS complete file protection protect local storage. Corrupt/unsupported files block writes rather than being reset. Errors do not log financial contents. Data remains until edited/deleted or the app is removed; standard device backups may contain the ledger. No app-managed cloud sync, export/recovery or custom encryption is provided. Do not treat this pre-release milestone as a finished financial system.
 
-The configured remote is `Developer-YashGaur/vyuhika-projectlens`. Current remote availability and UI-milestone CI status cannot be verified from the restricted agent session. See [validation](docs/validation.md) for actual checks and remaining blockers.
+## Documentation and release work
+
+See [architecture](docs/architecture.md), [PRD](docs/PRD.md), [design system](docs/design-system.md) and [icon deliverables](docs/branding.md). App icon artwork, signing, privacy disclosures, minimum-runtime and device accessibility verification remain release requirements.
+
+Copyright 2026 Vyuhika. [Apache-2.0](LICENSE). Repository history retains the former ProjectLens name.

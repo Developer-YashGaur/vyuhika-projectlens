@@ -1,1 +1,1 @@
-Local persistence adapters belong here when required. No storage engine, schema, personal data or migrations exist yet. Keep persistence separate from financial rules; define encryption, backup and deletion requirements before storing sensitive data.
+LedgerRepository owns versioned local JSON CRUD on an actor; LedgerStore publishes successful snapshots to SwiftUI. See docs/architecture.md for file protection, atomic writes, backup behavior, schema limits and safe error handling.

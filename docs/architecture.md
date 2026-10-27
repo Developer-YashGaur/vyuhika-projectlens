@@ -1,37 +1,30 @@
-# Architecture
+# Koshvya architecture
 
-## Current foundation
+One native iPhone SwiftUI app module, iOS 17 minimum, Swift 6 language mode. Internal ProjectLens target/scheme/bundle identity is preserved. No external packages, backend, provider integration or authentication.
 
-One native SwiftUI application target with one unit-test target and one UI-test target. No external packages. `ProjectLensApp` launches `NavigationShell`; `NeonOrbit` contains adaptive semantic design tokens. Each of the four native tabs owns a NavigationStack. The shell owns tab selection and one Quick Add sheet presentation state; the reusable sheet owns only its transient entry-type selection. `OrbitEmptyState` supplies the shared scrollable empty-state layout, reused by Home and the other destinations. No backend, database, authentication, dependency container or financial model is implemented.
+## Boundaries
 
-| Location | Responsibility |
-| --- | --- |
-| App | Application lifecycle and eventual composition |
-| Features | Feature UI and state: Home and preview-only Quick Add |
-| Shared/DesignSystem | Shared visual tokens and future reusable components |
-| Domain | Future money value types and deterministic financial rules |
-| Persistence | Future storage adapters and migrations |
-| Services | Future network/provider adapters |
-| ProjectLensTests | Hosted configuration, adaptive contrast and motion-policy tests |
-| ProjectLensUITests | Navigation, sheet lifecycle and accessibility-size smoke tests |
-| docs | Product decisions, architecture and design guidance |
+- App: lifecycle, one LedgerStore/actor repository, native tab navigation and a single Quick Add presenter.
+- Domain/Transaction.swift: immutable validated transaction values, explicit currency precision, exact Decimal parsing/string encoding and checked totals grouped by currency. No SwiftUI or storage dependencies.
+- Persistence/LedgerRepository.swift: actor-isolated CRUD, versioned JSON document, validation on decode, duplicate-ID checks, atomic replacement and complete iOS file protection.
+- Persistence/LedgerStore.swift: main-actor observable loading/saving/error state, sorted records and totals; publishes only after successful persistence. Blocks mutations while loading or another write is active.
+- Features: Home summaries, Money list/edit/delete confirmation, Quick Add chooser and shared create/edit form. Projects and Upcoming remain planned-feature placeholders.
+- Shared/DesignSystem: Neon Orbit tokens and reusable empty states. Services remains unimplemented.
 
-Domain, Persistence and Services currently contain boundary documentation only. Keep one app module until real complexity justifies extracting packages. Do not introduce generic repositories, protocols, state frameworks or service locators speculatively.
+## Storage decision
 
-## Intended dependency direction
+A small versioned document store fits the current single-user local CRUD scope without frameworks or speculative repository protocols. It re-reads and validates the file before each mutation; one actor serves the app. This is not a multi-process or high-volume database. Each write replaces the whole document, so revisit indexing/storage using measured ledger size before large imports or background integrations. There are no app extensions or shared writers.
 
-Feature orchestration may depend on domain rules and concrete adapters composed at the app boundary. Domain must remain independent of SwiftUI, persistence SDKs and networking. Introduce narrow injected interfaces when actual dependencies require them. Keep UI state on the main actor; isolate mutable shared state as needed under Swift 6 concurrency checking.
+Schema 1 stores UUID, kind, canonical decimal amount string, supported currency, category, date, notes and optional project label. Dates use Codable Date's instant representation; display follows the device locale/calendar. No month boundaries or accounting periods are inferred. Decimal sums use checked Foundation decimal operations and never combine currencies. Financial precision is rejected rather than rounded. The schema version must be understood before writes; unreadable files are never auto-reset.
 
-## Financial correctness
+The ledger lives in Application Support/Koshvya, with atomic file replacement and iOS complete file protection. Access while the device is locked can fail safely and should be retried after unlock. Standard device backups remain enabled; there is no custom encryption, synchronization or logging of financial contents. Uninstalling the app can remove its local data. Export/recovery, migrations to future schemas and multi-device conflict policy require separate work.
 
-Prefer Foundation Decimal or checked integer minor units with explicit currency metadata. Decide precision and rounding per operation. Never aggregate unlike currencies without explicit conversion metadata. Allocation must conserve totals. Test overflow, negative amounts, rounding remainders, date boundaries and migration behavior before adding related features. No currency or accounting policy has been selected yet.
+## UI and concurrency
 
-## Privacy and persistence
+The app creates one LedgerStore and injects it through the existing SwiftUI environment. File I/O runs on the repository actor rather than the UI actor. The initial read shows a loading state; read failures show Retry and block saving. Forms keep drafts locally, validate on submit, suppress duplicate submissions, retain drafts on errors and dismiss after a successful write. Cancel does not persist. Editing retains the transaction UUID. Delete asks for confirmation and reports failures. Home and Money share the same published snapshot.
 
-Begin with deliberate local data requirements; no storage technology is selected. Define protection, backup, retention, export and deletion semantics before saving sensitive records. No financial information in diagnostics by default. Future provider integrations must keep server secrets off the device. Sync and AI processing require separate ADRs and consent/threat-model reviews.
+DEBUG UI tests provide a UUID-named isolated ledger in a dedicated caches subdirectory; no user ledger is erased and no data is pre-seeded. Release builds ignore the test override. UI tests create their own entries and verify display/relaunch persistence.
 
 ## Build and release
 
-Bundle ID `com.vyuhika.projectlens`; iPhone only; iOS 17 minimum; Swift 6 mode. Generated Info.plist and launch screen keep configuration small. No signing team is committed. App icon, distribution signing, App Store metadata and privacy disclosures remain release work; this shell is not App Store ready.
-
-CI uses `macos-26` with `/Applications/Xcode_26.6.app`, currently listed in GitHub's runner image documentation, and selects an available iPhone simulator dynamically. Local Xcode 27.1 builds provide newer SDK validation. Revisit the CI pin when runner images change. See https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md.
+Keep the checked-in Xcode project and existing shared scheme/CI requirements. User-facing display name is Koshvya; targets and bundle ID remain ProjectLens/com.vyuhika.projectlens to preserve history and installed data identity. The AppIcon slot is prepared without fabricated artwork or a configured release icon. See branding.md for required deliverables. Device signing, privacy disclosures, icon validation and minimum iOS 17/device accessibility checks are still required before distribution.

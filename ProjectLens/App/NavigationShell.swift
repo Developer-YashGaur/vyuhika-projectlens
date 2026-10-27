@@ -64,14 +64,7 @@ struct NavigationShell: View {
         case .home:
             HomeView()
         case .money:
-            OrbitEmptyState(
-                symbol: "arrow.down.left.arrow.up.right",
-                eyebrow: "MONEY · A CLEARER PICTURE",
-                title: "Make room for clarity.",
-                message: "Your financial story starts here.",
-                detail: "Expense and income tracking are planned. No accounts or transactions are connected.",
-                identifier: "money.empty"
-            )
+            MoneyView()
         case .projects:
             OrbitEmptyState(
                 symbol: "square.stack.3d.up",

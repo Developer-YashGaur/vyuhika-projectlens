@@ -4,6 +4,13 @@ enum QuickAddEntry: String, CaseIterable, Identifiable {
     case expense, income, recurringCommitment, transfer
 
     var id: Self { self }
+    var transactionKind: TransactionKind? {
+        switch self {
+        case .expense: .expense
+        case .income: .income
+        default: nil
+        }
+    }
 
     var title: String {
         switch self {
@@ -33,20 +40,21 @@ enum QuickAddEntry: String, CaseIterable, Identifiable {
     }
 }
 
-/// A reusable chooser preview. It intentionally exposes no save or data-entry controls.
+/// A single native chooser; supported entry types push a local transaction form.
 struct QuickAddSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selection: QuickAddEntry?
+    @State private var path: [TransactionKind] = []
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: NeonOrbit.Spacing.large) {
                     Text("Start with a type.")
                         .font(NeonOrbit.Typography.heading)
                         .accessibilityAddTraits(.isHeader)
-                    Text("Explore the planned entry types. Creating and saving entries isn’t available yet.")
+                    Text("Save income or an expense on this device. Transfers and recurring commitments are not available yet.")
                         .font(NeonOrbit.Typography.body)
                         .foregroundStyle(NeonOrbit.secondaryText)
                     VStack(spacing: NeonOrbit.Spacing.medium) {
@@ -55,7 +63,7 @@ struct QuickAddSheet: View {
                         }
                     }
                     if let selection {
-                        Text("\(selection.title) selected. Entry forms are coming in a future release. Nothing has been saved.")
+                        Text("\(selection.title) selected. This workflow is not available yet. Nothing has been saved.")
                             .font(NeonOrbit.Typography.body)
                             .foregroundStyle(NeonOrbit.secondaryText)
                             .accessibilityIdentifier("quickAdd.preview")
@@ -68,6 +76,9 @@ struct QuickAddSheet: View {
             .accessibilityIdentifier("quickAdd.entries")
             .background(NeonOrbit.background.ignoresSafeArea())
             .foregroundStyle(NeonOrbit.primaryText)
+            .navigationDestination(for: TransactionKind.self) { kind in
+                TransactionForm(kind: kind) { dismiss() }
+            }
             .navigationTitle("Quick Add")
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -95,8 +106,9 @@ struct QuickAddSheet: View {
     private func entryButton(_ entry: QuickAddEntry) -> some View {
         let isSelected = selection == entry
         return Button {
-            withAnimation(NeonOrbit.Motion.selection(reduceMotion: reduceMotion)) {
-                selection = entry
+            if let kind = entry.transactionKind { path.append(kind) }
+            else {
+                withAnimation(NeonOrbit.Motion.selection(reduceMotion: reduceMotion)) { selection = entry }
             }
         } label: {
             HStack(alignment: .top, spacing: NeonOrbit.Spacing.medium) {
@@ -107,12 +119,12 @@ struct QuickAddSheet: View {
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: NeonOrbit.Spacing.extraSmall) {
                     Text(entry.title).font(NeonOrbit.Typography.label)
-                    Text(entry.summary)
+                    Text(entry.transactionKind == nil ? "Not yet available" : entry.summary)
                         .font(NeonOrbit.Typography.caption)
                         .foregroundStyle(NeonOrbit.secondaryText)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                Image(systemName: entry.transactionKind != nil ? "chevron.right" : (isSelected ? "checkmark.circle.fill" : "circle"))
                     .foregroundStyle(NeonOrbit.accent)
                     .accessibilityHidden(true)
             }
@@ -126,8 +138,8 @@ struct QuickAddSheet: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(entry.title)
-        .accessibilityValue(isSelected ? "Selected" : "Not selected")
-        .accessibilityHint("Previews this entry type. Does not create an entry.")
+        .accessibilityValue(entry.transactionKind != nil ? "Opens form" : (isSelected ? "Selected" : "Not selected"))
+        .accessibilityHint(entry.transactionKind != nil ? "Opens a transaction form" : "Not yet available; shows an explanation without saving")
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityIdentifier("quickAdd.\(entry.rawValue)")
     }

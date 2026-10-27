@@ -1,1 +1,1 @@
-Financial rules and value types belong here when implemented. Use Decimal or explicit integer minor units with currency metadata; never binary floating point for money. Define rounding, currency precision, allocation and date rules with tests before shipping calculations.
+Financial rules live in Transaction.swift: explicit currencies/precision, immutable validated transactions and checked Decimal totals. Amounts are always positive; transaction kind conveys direction. Never sum unlike currencies or use binary floating point for money.

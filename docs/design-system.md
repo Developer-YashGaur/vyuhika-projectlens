@@ -33,7 +33,10 @@ Spacing tokens: 4, 8, 16, 24, 32 and 48 pt. Controls have 16 pt radii; cards hav
 
 `OrbitEmptyState` shares the visual layout while each destination has its own copy. These are honest previews of planned tools, not populated product screens. No sums, records, schedules or projects are fabricated.
 
-`QuickAddSheet` is a reusable native large sheet with scrollable type rows and a Done control pinned in a bottom safe-area inset. Done stays outside the scrolling content, including at accessibility text sizes; it does not depend on system toolbar visibility. Expense, Income, Recurring commitment and Transfer can be selected to preview the category. An explicit notice explains that forms and saving are unavailable. Selection resets on reopening. There is no transaction form, save action or financial calculation.
+`QuickAddSheet` remains one native sheet with a pinned Done footer. Income and Expense now push a shared create form with an accessible pinned Save action and explicit Cancel. Successful saves close the sheet; validation/write failures retain the draft. Transfer and Recurring commitment remain labeled not yet available and show an explanation without saving. Reopening starts with no selection.
+
+Koshvya's Home displays only saved per-currency totals, with clear income/expense/net labels; an empty ledger keeps the branded empty state instead of invented balances. Money lists editable records and confirms deletion. Forms and lists use adaptive Neon Orbit surfaces and system typography; content can scroll around pinned actions and the keyboard.
+
 
 ## Accessibility and motion
 

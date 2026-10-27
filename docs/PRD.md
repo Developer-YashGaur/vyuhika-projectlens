@@ -1,28 +1,20 @@
-# ProjectLens product requirements
+# Koshvya product requirements
 
-## Established direction
+Koshvya is Vyuhika's native iPhone finance and project intelligence app, formerly called ProjectLens. Neon Orbit remains the visual direction. Target users: developers, freelancers, indie hackers and startup founders.
 
-Product: **Vyuhika ProjectLens** (display name **ProjectLens**). Company: **Vyuhika**. Primary platform: native iOS, initially iPhone. Design direction: **Neon Orbit**. Target users: developers, freelancers, indie hackers and startup founders.
+## Implemented local-finance milestone
 
-The product aims to connect personal financial tracking with project finances so users can understand costs and plan work with better financial context.
+- Local income/expense CRUD with amount, currency, category, date, notes and optional project-name label.
+- Quick Add forms, validation and safe local persistence; no fictional financial records.
+- Money list with editing and confirmed deletion; Home all-time per-currency flow totals derived from stored entries.
+- Native navigation, light/dark, scalable type, accessibility labels and reduced-motion-aware existing interactions.
 
-## Planned capabilities — none implemented
+The supported currency set and precision are explicit in README. There is no conversion or cross-currency total. Net recorded is income less expenses, not a bank balance. Project labels do not create a project workspace.
 
-- Personal and project financial tracking.
-- Recurring subscriptions, budgets and invoices.
-- Cost allocation across projects.
-- Release planning and financial intelligence.
+## Planned, not implemented
 
-Future exploration: cloud synchronization, automated provider integrations, collaborative workspaces and AI-supported insights. Scope, providers, pricing, backend architecture and delivery order are undecided.
+Transfers, recurring commitments, project financial workspaces, budgets, invoices, allocation, release planning, financial intelligence, provider integrations, synchronization, collaboration and AI-supported insights. No onboarding, authentication, backend, paid integration or monetization is included. These plans have no delivery commitments.
 
-## Current milestone
+## Acceptance and limits
 
-Refine Neon Orbit and provide four native destinations (Home, Money, Projects, Upcoming) with honest empty states and a preview-only Quick Add entry-type sheet. Support system appearances, Dynamic Type, VoiceOver and Reduce Motion. No onboarding, backend, money calculations or financial records are part of this milestone.
-
-## Product constraints
-
-Financial correctness and privacy are architectural priorities. Do not imply financial tools are usable before they exist. Avoid genuine-looking mock user records. Currency precision, rounding, time zones, invoice jurisdictions, data retention and sync conflicts require explicit decisions before related implementation. AI output must never silently become authoritative financial data.
-
-## Acceptance
-
-The shell identifies ProjectLens, communicates that tools are planned, supports large text and VoiceOver, and makes no network requests or persistent financial writes. Build and test results must be reported honestly, including environment limitations.
+Records survive relaunch, invalid input cannot save, cancel leaves storage unchanged, failed reads/writes report safe errors, and corrupt/future-version files are not overwritten. Decimal totals remain exact and currency-separated. Financial records do not enter logs. Local data uses OS protection and standard device backups; app-managed export/recovery is not yet available. CI, device accessibility and minimum-runtime results must be reported accurately, including blocked checks.

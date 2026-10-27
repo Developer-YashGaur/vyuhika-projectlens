@@ -1,5 +1,26 @@
 # Foundation validation
 
+## Koshvya local-finance milestone — current validation
+
+Branch: `feat/koshvya-local-finance`, based on local main `ec711e7`. Work is isolated in `/tmp/koshvya-local-finance` because workspace Git metadata is read-only to the agent. Current remote main could not be fetched/verified. Foundation/navigation notes below are historical.
+
+### Passed
+
+- **14 new ledger tests executed, 0 failures**, using a temporary macOS SwiftPM harness that copies the production Domain/Transaction.swift, Persistence/LedgerRepository.swift, Persistence/LedgerStore.swift and LedgerTests.swift (only the test import is renamed). No package or dependency was added to the repository. Tests cover CRUD/reload, concurrent writes, validation, locale/precision, exact Decimal encoding and currency-separated totals, corrupt/future schemas, failed writes, published state and retry.
+- Debug iPhone simulator **build-for-testing succeeded** for app, 18 unit tests and 5 UI tests; this compiles tests but does not execute them.
+- Unsigned Release generic iPhone device **build succeeded**. Debug explicitly defines DEBUG for isolated UI-test ledgers; Release has no test-ledger override. Built Info.plist confirms Koshvya display name, unchanged bundle ID, iPhone-only family and iOS 17 minimum.
+- Xcode object/source references, plist, asset JSON and shared scheme XML checks; existing CI YAML/shell syntax; `git diff --check`. CI scripts, workflow requirements and dependencies are unchanged.
+
+Local iOS builds use Xcode 27.1 and command-only `OTHER_SWIFT_FLAGS='$(inherited) -disable-sandbox'` to let the SDK's State macro subprocess run inside the agent sandbox. No compiler sandbox flag is committed to project or workflow configuration. AppIntents metadata warnings are expected because the app has no AppIntents dependency.
+
+### Blocked / not claimed
+
+- Existing `bash scripts/ci-ios.sh` fails at CoreSimulator discovery with invalid/refused service connections. **0 iOS unit or UI tests executed in this session.** macOS ledger tests do not validate UIKit, native form interaction or iOS file-protection enforcement.
+- No simulator screenshots, device/VoiceOver audit, minimum iOS 17 runtime pass or Xcode 26.6 CI pass is claimed. Run the unchanged workflow outside the sandbox, then check large text, light/dark, Reduce Motion, keyboard dismissal and locked-device storage behavior on device.
+- App icon artwork is not supplied: the catalog slot is intentionally unassigned. See branding.md. App Store signing/privacy/packaging remain release work.
+- GitHub authentication reports invalid/unavailable credentials and GitHub DNS access is restricted. Remote push, PR creation and CI verification depend on restoring host-terminal access; no remote success is claimed.
+
+
 Validated locally on 2026-10-27 with Xcode 27.1 (27A9275), Swift 6.4 and iOS 27.1 SDK.
 
 ## Neon Orbit navigation milestone — latest follow-up
