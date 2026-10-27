@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- User-facing Koshvya identity, preserving internal ProjectLens project and bundle identity.
+- Local income/expense CRUD, exact per-currency totals and functional Quick Add forms.
+- Atomic versioned local persistence, validation, safe error/loading states and isolated tests.
+- Prepared icon catalog slot and documented final artwork deliverables.
+
+
 - Adaptive light/dark Neon Orbit palette, rounded semantic typography, surfaces and motion tokens.
 - Four native tabs with individual navigation stacks and polished empty states.
 - One reusable Quick Add sheet with four preview-only entry types; no financial data is saved.

@@ -6,7 +6,7 @@ final class ApplicationConfigurationTests: XCTestCase {
     func testApplicationIdentity() {
         let bundle = Bundle.main
         XCTAssertEqual(bundle.bundleIdentifier, "com.vyuhika.projectlens")
-        XCTAssertEqual(bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String, "ProjectLens")
+        XCTAssertEqual(bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String, "Koshvya")
     }
 
     func testPhoneOnlyAndMinimumOS() {

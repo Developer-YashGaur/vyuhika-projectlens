@@ -1,7 +1,9 @@
 # Security
 
-ProjectLens is pre-release and not ready to hold sensitive financial data. No financial storage, backend, authentication or provider integration exists yet. Only the current main branch will receive security fixes during foundation development; no released versions are supported yet.
+Koshvya is pre-release. It stores financial entries locally in the app sandbox using atomic replacement and iOS complete file protection. There is no backend, authentication, analytics, provider integration, AI processing or app-managed synchronization. Standard device backups may include the ledger; no custom encryption or recovery/export mechanism is provided. Only the current main branch receives fixes; no released version is supported yet.
 
-Do not disclose vulnerabilities, credentials or financial records in public issues. Once the public repository exists, use GitHub's **Security → Report a vulnerability** if private reporting is enabled. If that control is absent, a private reporting channel must be established with the maintainer before sharing sensitive details. No monitored security email or response SLA is established.
+The app never intentionally logs financial amounts, notes or project labels. Invalid/unreadable files block writes; users can retry after unlocking the device. Do not commit real records, credentials or signing assets. Unit tests use temporary files; DEBUG UI tests use a separate UUID-scoped ledger without touching the user's data.
 
-Before collecting data: define a threat model, data classification, retention/deletion policy and backup behavior. Use Keychain for credentials, platform data protection for local data, HTTPS for transport and narrowly scoped provider authorization. Never embed service secrets. Financial amounts and identifiers must not appear in logs or telemetry by default. Any sync, analytics or AI processing requires an explicit privacy and consent design.
+Do not disclose vulnerabilities or financial records in public issues. Use GitHub Security → Report a vulnerability if enabled. If absent, establish a private channel with the maintainer before sharing sensitive details. No monitored security email or response SLA is established.
+
+Cloud integration, telemetry, export, retention controls and future persistence migrations require dedicated threat-model/privacy decisions. Never embed provider secrets in the app.

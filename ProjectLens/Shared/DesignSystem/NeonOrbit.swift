@@ -63,7 +63,7 @@ struct OrbitActionButton: View {
         .buttonBorderShape(.roundedRectangle(radius: NeonOrbit.Radius.control))
         .tint(NeonOrbit.actionFill)
         .foregroundStyle(NeonOrbit.onAction)
-        .accessibilityHint("Opens the entry type chooser. Saving entries is not available yet.")
+        .accessibilityHint("Add income or an expense to your local ledger.")
         .accessibilityIdentifier("quickAdd.open")
     }
 }

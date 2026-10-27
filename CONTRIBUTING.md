@@ -1,6 +1,6 @@
 # Contributing
 
-This repository is an early engineering foundation. Discuss larger changes before implementation. Keep pull requests small, use Conventional Commits (for example `chore: initialize iOS foundation`), explain the outcome and record relevant checks.
+This repository contains the early Koshvya local-finance app. Discuss larger changes before implementation. Keep pull requests small, use Conventional Commits (for example `chore: initialize iOS foundation`), explain the outcome and record relevant checks.
 
 Use native SwiftUI and existing platform APIs. Add dependencies only for a demonstrated need. Put financial rules in Domain and keep storage/network concerns outside those rules. Use explicit currency and rounding semantics; test allocation, precision and boundary cases before implementing money calculations. Never use binary floating point for financial values.
 
