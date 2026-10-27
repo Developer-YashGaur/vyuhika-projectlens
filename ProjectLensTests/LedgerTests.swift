@@ -7,7 +7,7 @@ final class LedgerTests: XCTestCase {
     private func record(_ amount: String = "12.34", kind: TransactionKind = .expense,
                         currency: LedgerCurrency = .INR, id: UUID = UUID(), category: String = "Tools") throws -> LedgerTransaction {
         try LedgerTransaction(id: id, kind: kind, amountText: amount, currency: currency, category: category,
-                              date: Date(timeIntervalSince1970: 1_700_000_000), notes: "Annual tool", project: "Orbit", locale: posix)
+                              date: Date(timeIntervalSince1970: 1_700_000_000), notes: "Annual tool", locale: posix)
     }
 
     private func directory() throws -> URL {
@@ -21,20 +21,20 @@ final class LedgerTests: XCTestCase {
         let url = try directory().appendingPathComponent("ledger.json")
         let repository = LedgerRepository(url: url)
         let original = try record()
-        let empty = try await repository.read()
+        let empty = try await repository.read().transactions
         XCTAssertTrue(empty.isEmpty)
-        let created = try await repository.create(original)
+        let created = try await repository.create(original).transactions
         XCTAssertEqual(created, [original])
-        let reloaded = try await LedgerRepository(url: url).read()
+        let reloaded = try await LedgerRepository(url: url).read().transactions
         XCTAssertEqual(reloaded, [original])
         let edited = try record("45.67", kind: .income, currency: .GBP, id: original.id, category: "Client work")
-        let updated = try await repository.update(edited)
+        let updated = try await repository.update(edited).transactions
         XCTAssertEqual(updated, [edited])
-        let persisted = try await LedgerRepository(url: url).read()
+        let persisted = try await LedgerRepository(url: url).read().transactions
         XCTAssertEqual(persisted, [edited])
-        let removed = try await repository.delete(id: original.id)
+        let removed = try await repository.delete(id: original.id).transactions
         XCTAssertTrue(removed.isEmpty)
-        let afterDelete = try await LedgerRepository(url: url).read()
+        let afterDelete = try await LedgerRepository(url: url).read().transactions
         XCTAssertTrue(afterDelete.isEmpty)
     }
 
@@ -45,7 +45,7 @@ final class LedgerTests: XCTestCase {
         async let firstWrite = repository.create(first)
         async let secondWrite = repository.create(second)
         _ = try await (firstWrite, secondWrite)
-        let records = try await repository.read()
+        let records = try await repository.read().transactions
         XCTAssertEqual(Set(records.map(\.id)), Set([first.id, second.id]))
     }
 
@@ -73,11 +73,10 @@ final class LedgerTests: XCTestCase {
     func testValidatesAndNormalizesMetadata() throws {
         XCTAssertThrowsError(try record(category: "   "))
         XCTAssertThrowsError(try record(category: String(repeating: "a", count: 81)))
-        let record = try LedgerTransaction(kind: .income, amountText: "2.50", currency: .USD, category: " Work ", date: Date(), project: "  ", locale: posix)
+        let record = try LedgerTransaction(kind: .income, amountText: "2.50", currency: .USD, category: " Work ", date: Date(), locale: posix)
         XCTAssertEqual(record.category, "Work")
-        XCTAssertNil(record.project)
+        XCTAssertNil(record.projectID)
         XCTAssertThrowsError(try LedgerTransaction(kind: .expense, amountText: "1", currency: .USD, category: "Tools", date: Date(), notes: String(repeating: "a", count: 2_001)))
-        XCTAssertThrowsError(try LedgerTransaction(kind: .expense, amountText: "1", currency: .USD, category: "Tools", date: Date(), project: String(repeating: "a", count: 121)))
     }
 
     func testDecimalEncodingRoundTripsWithoutBinaryFloatingPoint() throws {
@@ -111,7 +110,7 @@ final class LedgerTests: XCTestCase {
         catch { XCTAssertEqual(error as? LedgerError, .missing) }
         do { _ = try await repository.delete(id: UUID()); XCTFail("Missing deletion accepted") }
         catch { XCTAssertEqual(error as? LedgerError, .missing) }
-        let persisted = try await repository.read()
+        let persisted = try await repository.read().transactions
         XCTAssertEqual(persisted, [original])
     }
 
@@ -127,7 +126,7 @@ final class LedgerTests: XCTestCase {
 
     func testFutureSchemaIsNotOverwritten() async throws {
         let url = try directory().appendingPathComponent("ledger.json")
-        let original = Data(#"{"version":2,"futureRecords":[]}"#.utf8)
+        let original = Data(#"{"version":3,"futureRecords":[]}"#.utf8)
         try original.write(to: url)
         do { _ = try await LedgerRepository(url: url).create(record()); XCTFail("Future ledger overwritten") }
         catch { XCTAssertEqual(error as? LedgerError, .unsupportedVersion) }

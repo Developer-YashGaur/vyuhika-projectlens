@@ -64,7 +64,7 @@ struct MoneyView: View {
             Text("\(record.kind.title) · \(record.currency.rawValue) \(record.currency.formatted(record.amount))")
                 .foregroundStyle(record.kind == .income ? NeonOrbit.positive : NeonOrbit.primaryText)
             Text(record.date, style: .date).font(NeonOrbit.Typography.caption)
-            if let project = record.project { Text("Project: \(project)").font(NeonOrbit.Typography.caption) }
+            if let project = ledger.project(id: record.projectID) { Text("Project: \(project.name)").font(NeonOrbit.Typography.caption) }
             if !record.notes.isEmpty { Text(record.notes).font(NeonOrbit.Typography.caption) }
         }
         .padding(.vertical, NeonOrbit.Spacing.small)

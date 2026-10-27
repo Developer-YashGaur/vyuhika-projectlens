@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Phase 3: persisted project CRUD/archive/restore, exact expense budgets and recorded profitability.
+- Stable project UUID associations with currency guards; project deletion preserves and unlinks transactions.
+- Atomic schema-1 migration with original backup; project-finance unit and workflow UI coverage.
+
 - Integrated approved Koshvya AppIcon and Home logo without changing finance behavior.
 
 - User-facing Koshvya identity, preserving internal ProjectLens project and bundle identity.
@@ -21,4 +25,4 @@
 - Product, architecture, contribution and security documentation.
 - Owner-approved Apache-2.0 license.
 
-No financial features or public release are available.
+No public release is available.

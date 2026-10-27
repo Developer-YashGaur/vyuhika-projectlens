@@ -25,16 +25,22 @@ enum LedgerCurrency: String, Codable, CaseIterable, Identifiable, Sendable {
 enum LedgerError: LocalizedError, Equatable {
     case invalidAmount, invalidPrecision, invalidCategory, invalidNotes, invalidProject, invalidDate
     case duplicate, missing, unsupportedVersion, invalidFile, unavailable, busy, arithmetic
+    case invalidProjectDetails, invalidProjectDates, invalidBudget, projectMissing, currencyMismatch
     var errorDescription: String? {
         switch self {
         case .invalidAmount: "Enter a positive amount with at most 12 whole-number digits. Use a decimal separator, without grouping or currency symbols."
         case .invalidPrecision: "The amount has more decimal places than this currency supports."
         case .invalidCategory: "Enter a category of 1–80 characters."
         case .invalidNotes: "Notes must be 2,000 characters or fewer."
-        case .invalidProject: "Project name must be 120 characters or fewer."
+        case .invalidProject: "Enter a project name of 1–120 characters."
+        case .invalidBudget: "Enter a budget of zero or more with at most 12 whole-number digits, without grouping or currency symbols. Leave blank for no budget."
+        case .invalidProjectDetails: "Project description must be 2,000 characters or fewer."
+        case .invalidProjectDates: "Choose valid project dates. End date must be on or after start date."
+        case .projectMissing: "This project no longer exists. Choose another project or unlink the transaction."
+        case .currencyMismatch: "A linked transaction must use its project's currency. Unlink or choose a matching project before changing currency. A project's currency cannot change while transactions are linked."
         case .invalidDate: "Choose a valid transaction date."
-        case .duplicate: "This transaction already exists."
-        case .missing: "This transaction no longer exists. Reload and try again."
+        case .duplicate: "This record already exists."
+        case .missing: "This record no longer exists. Reload and try again."
         case .unsupportedVersion: "This ledger was created by a newer app version. Update Koshvya before opening it."
         case .invalidFile: "The local ledger could not be read safely. Your file has not been changed."
         case .unavailable: "Reload your local ledger before making changes."
@@ -45,7 +51,7 @@ enum LedgerError: LocalizedError, Equatable {
 }
 
 enum LedgerAmount {
-    static func parse(_ input: String, currency: LedgerCurrency, locale: Locale = .current) throws -> Decimal {
+    static func parse(_ input: String, currency: LedgerCurrency, locale: Locale = .current, allowZero: Bool = false) throws -> Decimal {
         var text = input.trimmingCharacters(in: .whitespacesAndNewlines)
         if let separator = locale.decimalSeparator, separator != "." {
             // Accept the local separator or canonical dot, but never grouping.
@@ -57,7 +63,7 @@ enum LedgerAmount {
               text.allSatisfy({ ("0"..."9").contains(String($0)) || $0 == "." }),
               parts.count == 1 || !parts[1].isEmpty,
               let value = Decimal(string: text, locale: Locale(identifier: "en_US_POSIX")),
-              !value.isNaN, value > 0 else { throw LedgerError.invalidAmount }
+              !value.isNaN, (allowZero ? value >= 0 : value > 0) else { throw LedgerError.invalidAmount }
         guard parts.count == 1 || parts[1].count <= currency.fractionDigits else {
             throw LedgerError.invalidPrecision
         }
@@ -84,16 +90,13 @@ struct LedgerTransaction: Identifiable, Codable, Equatable, Sendable {
     let category: String
     let date: Date
     let notes: String
-    /// Optional user-entered project label, not a project record or foreign key.
-    let project: String?
+    let projectID: UUID?
 
     init(id: UUID = UUID(), kind: TransactionKind, amountText: String, currency: LedgerCurrency,
-         category: String, date: Date, notes: String = "", project: String = "", locale: Locale = .current) throws {
+         category: String, date: Date, notes: String = "", projectID: UUID? = nil, locale: Locale = .current) throws {
         let category = category.trimmingCharacters(in: .whitespacesAndNewlines)
-        let project = project.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !category.isEmpty && category.count <= 80 else { throw LedgerError.invalidCategory }
         guard notes.count <= 2_000 else { throw LedgerError.invalidNotes }
-        guard project.count <= 120 else { throw LedgerError.invalidProject }
         guard date.timeIntervalSinceReferenceDate.isFinite else { throw LedgerError.invalidDate }
         self.id = id
         self.kind = kind
@@ -102,16 +105,22 @@ struct LedgerTransaction: Identifiable, Codable, Equatable, Sendable {
         self.category = category
         self.date = date
         self.notes = notes
-        self.project = project.isEmpty ? nil : project
+        self.projectID = projectID
     }
 
-    private enum CodingKeys: String, CodingKey { case id, kind, amount, currency, category, date, notes, project }
+    func assigning(projectID: UUID?) throws -> LedgerTransaction {
+        try LedgerTransaction(id: id, kind: kind, amountText: LedgerAmount.canonical(amount), currency: currency,
+                              category: category, date: date, notes: notes, projectID: projectID,
+                              locale: Locale(identifier: "en_US_POSIX"))
+    }
+
+    private enum CodingKeys: String, CodingKey { case id, kind, amount, currency, category, date, notes, projectID }
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         try self.init(id: c.decode(UUID.self, forKey: .id), kind: c.decode(TransactionKind.self, forKey: .kind),
                       amountText: c.decode(String.self, forKey: .amount), currency: c.decode(LedgerCurrency.self, forKey: .currency),
                       category: c.decode(String.self, forKey: .category), date: c.decode(Date.self, forKey: .date),
-                      notes: c.decode(String.self, forKey: .notes), project: c.decodeIfPresent(String.self, forKey: .project) ?? "",
+                      notes: c.decode(String.self, forKey: .notes), projectID: c.decodeIfPresent(UUID.self, forKey: .projectID),
                       locale: Locale(identifier: "en_US_POSIX"))
     }
     func encode(to encoder: Encoder) throws {
@@ -123,7 +132,7 @@ struct LedgerTransaction: Identifiable, Codable, Equatable, Sendable {
         try c.encode(category, forKey: .category)
         try c.encode(date, forKey: .date)
         try c.encode(notes, forKey: .notes)
-        try c.encodeIfPresent(project, forKey: .project)
+        try c.encodeIfPresent(projectID, forKey: .projectID)
     }
 }
 

@@ -11,21 +11,21 @@ struct TransactionForm: View {
     @State private var category: String
     @State private var date: Date
     @State private var notes: String
-    @State private var project: String
+    @State private var projectID: UUID?
     @State private var errorMessage: String?
     @State private var submitting = false
 
-    init(kind: TransactionKind, existing: LedgerTransaction? = nil, onSaved: @escaping () -> Void) {
+    init(kind: TransactionKind, existing: LedgerTransaction? = nil, initialProject: LedgerProject? = nil, onSaved: @escaping () -> Void) {
         self.existing = existing
         self.onSaved = onSaved
         _kind = State(initialValue: existing?.kind ?? kind)
         // The edit field accepts the canonical decimal separator as well as the locale's.
         _amount = State(initialValue: existing.map { LedgerAmount.canonical($0.amount) } ?? "")
-        _currency = State(initialValue: existing?.currency ?? .INR)
+        _currency = State(initialValue: existing?.currency ?? initialProject?.currency ?? .INR)
         _category = State(initialValue: existing?.category ?? "")
         _date = State(initialValue: existing?.date ?? Date())
         _notes = State(initialValue: existing?.notes ?? "")
-        _project = State(initialValue: existing?.project ?? "")
+        _projectID = State(initialValue: existing?.projectID ?? initialProject?.id)
     }
 
     var body: some View {
@@ -49,16 +49,30 @@ struct TransactionForm: View {
             }
             .listRowBackground(NeonOrbit.surface)
             Section {
-                TextField("Project name (optional)", text: $project)
-                    .focused($focused, equals: .project)
-                    .accessibilityIdentifier("transaction.project")
+                Picker("Project", selection: $projectID) {
+                    Text("No project").tag(nil as UUID?)
+                    ForEach(ledger.projects) { project in
+                        Text("\(project.name) · \(project.currency.rawValue)\(project.status == .archived ? " · Archived" : "")")
+                            .tag(Optional(project.id))
+                    }
+                }
+                .pickerStyle(.menu)
+                .accessibilityIdentifier("transaction.project")
+                if let project = ledger.project(id: projectID), project.currency != currency {
+                    Text("Currency mismatch. Choose \(project.currency.rawValue), a matching project, or No project.")
+                        .accessibilityIdentifier("transaction.projectMismatch")
+                }
+                if projectID != nil && ledger.project(id: projectID) == nil {
+                    Text("Project no longer available. Choose another project or No project.")
+                }
                 TextField("Notes (optional)", text: $notes, axis: .vertical)
                     .focused($focused, equals: .notes)
                     .accessibilityIdentifier("transaction.notes")
             } header: { Text("Details") }
-            footer: { Text("Stored on this device. Changing currency does not convert the amount. Project names are labels; no project workspace is created.") }
+            footer: { Text("Stored on this device. Changing currency does not convert the amount. Project links require the same currency. Choosing No project unlinks this entry without deleting it.") }
             .listRowBackground(NeonOrbit.surface)
         }
+        .accessibilityIdentifier("transaction.form")
         .scrollContentBackground(.hidden)
         .background(NeonOrbit.background.ignoresSafeArea())
         .foregroundStyle(NeonOrbit.primaryText)
@@ -73,6 +87,7 @@ struct TransactionForm: View {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
                 Button("Hide Keyboard") { focused = nil }
+                    .accessibilityIdentifier("form.hideKeyboard")
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -100,7 +115,7 @@ struct TransactionForm: View {
         } message: { Text(errorMessage ?? "") }
     }
 
-    private enum Field: Hashable { case amount, category, project, notes }
+    private enum Field: Hashable { case amount, category, notes }
     @FocusState private var focused: Field?
 
     private func save() async {
@@ -108,7 +123,7 @@ struct TransactionForm: View {
         do {
             let record = try LedgerTransaction(id: existing?.id ?? UUID(), kind: kind, amountText: amount,
                                                currency: currency, category: category, date: date,
-                                               notes: notes, project: project)
+                                               notes: notes, projectID: projectID)
             try await ledger.save(record, editing: existing != nil)
             onSaved()
         } catch {

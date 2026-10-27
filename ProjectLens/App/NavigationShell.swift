@@ -66,14 +66,7 @@ struct NavigationShell: View {
         case .money:
             MoneyView()
         case .projects:
-            OrbitEmptyState(
-                symbol: "square.stack.3d.up",
-                eyebrow: "PROJECTS · IDEAS IN ORBIT",
-                title: "Your next idea belongs here.",
-                message: "A space for the work you care about.",
-                detail: "Project finances and cost allocation are planned. No projects have been created.",
-                identifier: "projects.empty"
-            )
+            ProjectsView()
         case .upcoming:
             OrbitEmptyState(
                 symbol: "calendar.badge.clock",
