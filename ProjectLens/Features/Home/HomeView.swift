@@ -3,6 +3,27 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject private var ledger: LedgerStore
     var body: some View {
+        VStack(spacing: 0) {
+            Image("KoshvyaLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 220, maxHeight: 165)
+                .padding(NeonOrbit.Spacing.small)
+                .background(Color(red: 0.02, green: 0.03, blue: 0.08),
+                            in: RoundedRectangle(cornerRadius: NeonOrbit.Radius.surface))
+                .padding(.vertical, NeonOrbit.Spacing.small)
+                .frame(maxWidth: .infinity)
+                .accessibilityLabel("Koshvya by Vyuhika")
+                .accessibilityIdentifier("home.logo")
+            homeContent
+        }
+        .foregroundStyle(NeonOrbit.primaryText)
+        .background(NeonOrbit.background.ignoresSafeArea())
+        .toolbarBackground(NeonOrbit.background, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+    }
+
+    private var homeContent: some View {
         Group {
             if ledger.isLoading {
                 ProgressView("Opening your ledger…").frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -40,8 +61,6 @@ struct HomeView: View {
                 }
             }
         }
-        .foregroundStyle(NeonOrbit.primaryText)
-        .background(NeonOrbit.background.ignoresSafeArea())
     }
 
     private func total(_ title: String, _ amount: Decimal, _ currency: LedgerCurrency) -> some View {

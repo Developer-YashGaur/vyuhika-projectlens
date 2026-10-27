@@ -1,14 +1,16 @@
-# Koshvya identity and icon handoff
+# Koshvya approved branding
 
-Working product name: **Koshvya**. Company: **Vyuhika**. Use “by Vyuhika” only in deliberate branding such as Home's empty-state eyebrow; do not repeat it across controls. Internal ProjectLens target/project names, GitHub repository and bundle identifier remain unchanged.
+Product: **Koshvya**, by **Vyuhika**. Internal ProjectLens targets and the `com.vyuhika.projectlens` bundle identifier remain stable.
 
-`AppIcon.appiconset/Contents.json` prepares a universal iOS 1024×1024 slot. It intentionally has no filename or supplied artwork, and ASSETCATALOG_COMPILER_APPICON_NAME is not set until approved assets arrive. No promotional image has been traced, recreated or used as an application icon.
+## Phase 2.1 integration
 
-Required final deliverables before release:
+Approved source files are preserved unchanged in `design/branding/`:
 
-- Approved original Koshvya icon artwork and proof of usage rights/source ownership.
-- A square, opaque 1024×1024 sRGB PNG with no baked-in corner mask, transparency or promotional text. Verify Apple's current submission requirements at release time.
-- Optional separate dark/tinted variants, also 1024×1024, if designed and approved; add corresponding appearance metadata only when files exist.
-- Editable source artwork, export instructions and small-size legibility review against both system appearances.
+- `Koshvya-AppIcon-1024.png`: opaque 1024×1024 PNG, copied byte-for-byte into `AppIcon.appiconset`. Debug and Release select `AppIcon` through `ASSETCATALOG_COMPILER_APPICON_NAME`; Xcode generates the iPhone icon sizes and bundle icon metadata.
+- `Koshvya-Logo-Approved.png`: transparent 1448×1086 PNG, copied byte-for-byte into the universal `KoshvyaLogo.imageset`. Home displays the original proportions on a dark backing in both system appearances, with the accessible label “Koshvya by Vyuhika”. The logo remains visible during loading, errors, empty state and recorded totals.
 
-After receipt, assign the PNG filename, configure the AppIcon build setting, validate the asset catalog/archive and review on device. The current slot is preparation only and is not an App Store-ready icon.
+No replacement artwork, recoloring, cropping or additional appearance variants were generated. The icon contains the approved artwork's inset rounded border; it has been retained as supplied. Any future artwork changes need separate design approval.
+
+## Release follow-up
+
+Signing, App Store packaging/privacy disclosures, source ownership records, physical-device review and minimum iOS 17 appearance/accessibility verification remain release work. See [validation](validation.md) for executed checks. The UI branding test records both Home and the iPhone Home Screen in its xcresult attachments.

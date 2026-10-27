@@ -9,6 +9,18 @@ final class ApplicationConfigurationTests: XCTestCase {
         XCTAssertEqual(bundle.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String, "Koshvya")
     }
 
+    func testApprovedBrandAssetsAreBundled() throws {
+        XCTAssertNotNil(UIImage(named: "KoshvyaLogo"))
+        let icons = try XCTUnwrap(Bundle.main.object(forInfoDictionaryKey: "CFBundleIcons") as? [String: Any])
+        let primaryIcon = try XCTUnwrap(icons["CFBundlePrimaryIcon"] as? [String: Any])
+        XCTAssertEqual(primaryIcon["CFBundleIconName"] as? String, "AppIcon")
+        let files = try XCTUnwrap(primaryIcon["CFBundleIconFiles"] as? [String])
+        XCTAssertFalse(files.isEmpty)
+        for file in files {
+            XCTAssertNotNil(UIImage(named: file))
+        }
+    }
+
     func testPhoneOnlyAndMinimumOS() {
         let bundle = Bundle.main
         XCTAssertEqual(bundle.object(forInfoDictionaryKey: "UIDeviceFamily") as? [Int], [1])

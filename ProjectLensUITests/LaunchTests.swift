@@ -2,9 +2,28 @@ import XCTest
 
 final class LaunchTests: XCTestCase {
     @MainActor
+    func testBrandingOnHomeAndSpringboard() {
+        let app = isolatedApp()
+        app.launch()
+        XCTAssertTrue(app.images["home.logo"].waitForExistence(timeout: 10))
+        let home = XCTAttachment(screenshot: app.screenshot())
+        home.name = "Koshvya Home approved logo"
+        home.lifetime = .keepAlways
+        add(home)
+        XCUIDevice.shared.press(.home)
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        XCTAssertTrue(springboard.icons["Koshvya"].firstMatch.waitForExistence(timeout: 10))
+        let icon = XCTAttachment(screenshot: springboard.screenshot())
+        icon.name = "Koshvya iPhone Home Screen icon"
+        icon.lifetime = .keepAlways
+        add(icon)
+    }
+
+    @MainActor
     func testAllDestinationsAndQuickAddPreserveSelection() {
         let app = isolatedApp()
         app.launch()
+        XCTAssertTrue(app.images["home.logo"].waitForExistence(timeout: 10))
         for title in ["Home", "Money", "Projects", "Upcoming"] {
             // Native tab accessibility containers vary across iOS versions.
             let tab = app.buttons[title]
@@ -91,6 +110,7 @@ final class LaunchTests: XCTestCase {
         app.buttons["Money"].tap()
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         app.buttons["Home"].tap()
+        XCTAssertTrue(app.images["home.logo"].waitForExistence(timeout: 5))
         let total = app.staticTexts["total.INR.Expenses"]
         XCTAssertTrue(total.waitForExistence(timeout: 5))
         XCTAssertTrue(total.label.contains("123.45"))
