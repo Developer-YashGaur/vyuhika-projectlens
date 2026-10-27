@@ -1,0 +1,1 @@
+Financial rules and value types belong here when implemented. Use Decimal or explicit integer minor units with currency metadata; never binary floating point for money. Define rounding, currency precision, allocation and date rules with tests before shipping calculations.

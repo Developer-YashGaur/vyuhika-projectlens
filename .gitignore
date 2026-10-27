@@ -1,0 +1,37 @@
+# Xcode and Swift build output
+.DS_Store
+build/
+DerivedData/
+.build/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.ipa
+*.dSYM/
+*.dSYM.zip
+*.xcarchive/
+*.xcresult/
+# Local credentials, signing and configuration
+.env
+.env.*
+!.env.example
+*.p12
+*.p8
+*.mobileprovision
+*.key
+*.pem
+Secrets.xcconfig
+Local.xcconfig
+.aws/
+.codex/
+.agents/
+# Local financial data and development state
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.log
+coverage/
+.idea/
+.vscode/

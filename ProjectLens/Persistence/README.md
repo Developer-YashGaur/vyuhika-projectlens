@@ -1,0 +1,1 @@
+Local persistence adapters belong here when required. No storage engine, schema, personal data or migrations exist yet. Keep persistence separate from financial rules; define encryption, backup and deletion requirements before storing sensitive data.
