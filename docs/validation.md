@@ -2,6 +2,37 @@
 
 Validated locally on 2026-10-27 with Xcode 27.1 (27A9275), Swift 6.4 and iOS 27.1 SDK.
 
+## Neon Orbit navigation milestone — latest follow-up
+
+Implemented on `feat/neon-orbit-navigation` in `/tmp/projectlens-neon-orbit`, isolated from the original workspace. Original workspace main remains unchanged at `cda5758` (foundation). Local main and cached origin/main match that commit; **latest remote main could not be verified**. The workspace `.git` is read-only in this sandbox (`FETCH_HEAD: Operation not permitted`; feature-ref creation also denied), so a writable local clone was used. No remote history was overwritten.
+
+### Implemented scope
+
+Adaptive native Home/Money/Projects/Upcoming tabs with individual NavigationStacks, shared honest empty states, one Quick Add sheet presenter and four selectable preview-only entry types. Refined light/dark palette, scalable typography, surface/elevation tokens, safe-area action placement and reduced-motion-aware selection feedback. No forms, save operation, financial models, persistence or networking were added.
+
+### Validation results
+
+- Standard generic simulator build reaches Swift compilation but Xcode 27's `@State` macro subprocess fails with `sandbox-exec: sandbox_apply: Operation not permitted`. This is a nested compiler sandbox failure, not evidence of a Swift source error.
+- The following **command-only** compiler workaround permits validation; no compiler flag or sandbox relaxation was committed to project/CI configuration:
+
+```bash
+xcodebuild -project ProjectLens.xcodeproj -scheme ProjectLens \
+  -configuration Debug -sdk iphonesimulator \
+  -destination 'generic/platform=iOS Simulator' \
+  -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO \
+  'OTHER_SWIFT_FLAGS=$(inherited) -disable-sandbox' build-for-testing
+```
+
+- With that workaround: **TEST BUILD SUCCEEDED**, app and both test targets compiled for arm64 and x86_64 simulators. AppIntents metadata warnings are benign; no AppIntents integration exists.
+- `bash scripts/ci-ios.sh`: **blocked at CoreSimulator discovery; zero unit or UI tests executed**. No runtime test pass, screenshot, VoiceOver audit or visual QA is claimed. Existing workflow and CI configuration were retained.
+- Asset JSON parsing, static contrast calculations, Xcode project plist/reference checks, shared scheme XML, shell syntax and `git diff --check` pass. Across primary/secondary text and violet/cyan/lime on both surfaces in both appearances, lowest computed contrast is **5.05:1**. White action labels also exceed 4.5:1.
+- Added compiled unit coverage for resolving the actual light/dark asset palette and contrast, plus Reduce Motion animation policy. UI tests cover all tabs, Quick Add selection, repeated presentation, native dismissal, selection reset and reachability at accessibility text size. Execution remains pending.
+- Before release: run the unchanged workflow outside this sandbox, verify small/large iPhones and landscape, both appearances, VoiceOver, Increase Contrast, Reduce Motion and the minimum iOS 17 runtime. Local validation used Xcode 27.1; the Xcode 26.6 CI baseline remains unexecuted for this change.
+
+### GitHub handoff
+
+GitHub DNS resolution still fails for github.com; `gh auth status` reports invalid authentication but cannot establish credential validity without API access. Feature push and PR creation cannot complete in this session. CI status is **unknown**, not passed. No branch protection was modified or bypassed. Publication requires fetching current main and reviewing/reconciling any intervening changes before pushing. Foundation publication notes below are historical and do not describe current local Git state.
+
 ## Passed
 
 - `plutil -lint ProjectLens.xcodeproj/project.pbxproj`.

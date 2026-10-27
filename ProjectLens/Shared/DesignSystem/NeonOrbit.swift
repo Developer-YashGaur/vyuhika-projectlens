@@ -1,26 +1,69 @@
 import SwiftUI
 
-/// Semantic tokens for the initial dark Neon Orbit palette.
+/// Semantic, appearance-adaptive tokens. Financial colors never replace text labels.
 enum NeonOrbit {
-    static let background = Color(red: 0.035, green: 0.047, blue: 0.09)
-    static let surface = Color(red: 0.075, green: 0.09, blue: 0.15)
-    static let primaryText = Color.white
-    static let secondaryText = Color(red: 0.72, green: 0.76, blue: 0.86)
-    static let accent = Color(red: 0.35, green: 0.94, blue: 0.87)
-    static let highlight = Color(red: 0.76, green: 0.65, blue: 1.0)
-    static let cornerRadius: CGFloat = 20
+    static let background = Color("OrbitBackground")
+    static let surface = Color("OrbitSurface")
+    static let primaryText = Color("OrbitPrimaryText")
+    static let secondaryText = Color("OrbitSecondaryText")
+    static let accent = Color("AccentColor")
+    static let secondaryAccent = Color("OrbitCyan")
+    static let positive = Color("OrbitPositive")
+    static let border = Color("OrbitBorder")
+    static let actionFill = Color("OrbitActionFill")
+    static let onAction = Color.white
 
     enum Spacing {
+        static let extraSmall: CGFloat = 4
         static let small: CGFloat = 8
         static let medium: CGFloat = 16
         static let large: CGFloat = 24
         static let extraLarge: CGFloat = 32
+        static let section: CGFloat = 48
+    }
+
+    enum Radius {
+        static let control: CGFloat = 16
+        static let surface: CGFloat = 24
     }
 
     enum Typography {
-        static let title = Font.largeTitle.weight(.bold)
-        static let heading = Font.title2.weight(.semibold)
+        static let title = Font.system(.largeTitle, design: .rounded, weight: .bold)
+        static let heading = Font.system(.title2, design: .rounded, weight: .semibold)
         static let body = Font.body
-        static let caption = Font.caption
+        static let label = Font.headline
+        static let caption = Font.subheadline
+        static let eyebrow = Font.system(.caption, design: .monospaced, weight: .semibold)
+    }
+
+    enum Elevation {
+        static let color = Color.black.opacity(0.10)
+        static let radius: CGFloat = 12
+        static let offset: CGFloat = 4
+    }
+
+    enum Motion {
+        static let brief: TimeInterval = 0.18
+        static func selection(reduceMotion: Bool) -> Animation? {
+            reduceMotion ? nil : .easeInOut(duration: brief)
+        }
+    }
+}
+
+struct OrbitActionButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label("Quick Add", systemImage: "plus")
+                .font(NeonOrbit.Typography.label)
+                .frame(maxWidth: .infinity, minHeight: 44)
+        }
+        .buttonStyle(.borderedProminent)
+        .buttonBorderShape(.roundedRectangle(radius: NeonOrbit.Radius.control))
+        .tint(NeonOrbit.actionFill)
+        .foregroundStyle(NeonOrbit.onAction)
+        .accessibilityHint("Opens the entry type chooser. Saving entries is not available yet.")
+        .accessibilityIdentifier("quickAdd.open")
     }
 }
