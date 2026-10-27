@@ -128,10 +128,10 @@ final class LaunchTests: XCTestCase {
     }
 
     @MainActor
-    func testProjectCreationEditArchiveAndRelaunch() {
+    func testProjectCreationEditArchiveAndRelaunch() throws {
         let app = isolatedApp()
         app.launch()
-        createProject(app, name: "UI Project", budget: "1000")
+        try createProject(app, name: "UI Project", budget: "1000")
         projectRow(app, name: "UI Project").tap()
         XCTAssertTrue(app.buttons["project.edit"].waitForExistence(timeout: 5))
         app.buttons["project.edit"].tap()
@@ -139,10 +139,11 @@ final class LaunchTests: XCTestCase {
         XCTAssertTrue(name.waitForExistence(timeout: 5))
         name.tap()
         name.typeText(" Renamed")
+        try dismissKeyboard(in: app)
         app.buttons["project.save"].tap()
         XCTAssertTrue(app.navigationBars["UI Project Renamed"].waitForExistence(timeout: 5))
         let archive = app.buttons["project.archive"]
-        scrollTo(archive, in: app, upwards: true)
+        try scrollTo(archive, in: app, containerID: "project.detail", upwards: true)
         archive.tap()
         XCTAssertTrue(app.buttons["Restore project"].waitForExistence(timeout: 5))
         app.terminate()
@@ -154,26 +155,27 @@ final class LaunchTests: XCTestCase {
     }
 
     @MainActor
-    func testLinkedExpenseUpdatesBudgetAndCanBeUnlinkedFromMoney() {
+    func testLinkedExpenseUpdatesBudgetAndCanBeUnlinkedFromMoney() throws {
         let app = isolatedApp()
         app.launch()
-        createProject(app, name: "UI Linked Project", budget: "100")
+        try createProject(app, name: "UI Linked Project", budget: "100")
         projectRow(app, name: "UI Linked Project").tap()
         let addExpense = app.buttons["project.addExpense"]
-        scrollTo(addExpense, in: app, upwards: true)
+        try scrollTo(addExpense, in: app, containerID: "project.detail", upwards: true)
         addExpense.tap()
         let amount = app.textFields["transaction.amount"]
         XCTAssertTrue(amount.waitForExistence(timeout: 5))
         amount.tap(); amount.typeText("12.34")
         let category = app.textFields["transaction.category"]
         category.tap(); category.typeText("UI Linked Tools")
+        try dismissKeyboard(in: app)
         app.buttons["transaction.save"].tap()
         XCTAssertTrue(app.buttons["project.edit"].waitForExistence(timeout: 5))
         let remaining = app.descendants(matching: .any).matching(identifier: "project.remaining").firstMatch
-        scrollTo(remaining, in: app, upwards: false)
+        try scrollTo(remaining, in: app, containerID: "project.detail", upwards: false)
         XCTAssertTrue(remaining.label.contains("87.66"))
         let profit = app.descendants(matching: .any).matching(identifier: "project.profit").firstMatch
-        scrollTo(profit, in: app, upwards: false)
+        try scrollTo(profit, in: app, containerID: "project.detail", upwards: false)
         XCTAssertTrue(profit.label.contains("12.34"))
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.name = "Koshvya project budget and profitability"
@@ -187,7 +189,7 @@ final class LaunchTests: XCTestCase {
         XCTAssertTrue(row.label.contains("UI Linked Project"))
         row.tap()
         let picker = app.buttons["transaction.project"]
-        scrollTo(picker, in: app, upwards: true)
+        try scrollTo(picker, in: app, containerID: "transaction.form", upwards: true)
         picker.tap()
         app.buttons["No project"].tap()
         app.buttons["transaction.save"].tap()
@@ -197,17 +199,21 @@ final class LaunchTests: XCTestCase {
     }
 
     @MainActor
-    private func createProject(_ app: XCUIApplication, name: String, budget: String) {
+    private func createProject(_ app: XCUIApplication, name: String, budget: String) throws {
         app.buttons["Projects"].tap()
         let create = app.buttons["project.create"]
         XCTAssertTrue(create.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.descendants(matching: .any).matching(identifier: "projects.empty").firstMatch.waitForExistence(timeout: 5),
+                      "Each project workflow must start with its own empty ledger")
         create.tap()
         let field = app.textFields["project.name"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap(); field.typeText(name)
         let amount = app.textFields["project.budget"]
-        scrollTo(amount, in: app, upwards: true)
+        try scrollTo(amount, in: app, containerID: "project.form", upwards: true)
         amount.tap(); amount.typeText(budget)
+        XCTAssertEqual(amount.value as? String, budget)
+        try dismissKeyboard(in: app)
         app.buttons["project.save"].tap()
         XCTAssertTrue(projectRow(app, name: name).waitForExistence(timeout: 5))
     }
@@ -218,16 +224,55 @@ final class LaunchTests: XCTestCase {
     }
 
     @MainActor
-    private func scrollTo(_ element: XCUIElement, in app: XCUIApplication, upwards: Bool) {
-        let scroll: XCUIElement
-        if app.collectionViews.firstMatch.exists { scroll = app.collectionViews.firstMatch }
-        else if app.scrollViews.firstMatch.exists { scroll = app.scrollViews.firstMatch }
-        else { scroll = app.tables.firstMatch }
+    private func scrollTo(_ element: XCUIElement, in app: XCUIApplication, containerID: String,
+                          upwards: Bool, file: StaticString = #filePath, line: UInt = #line) throws {
+        try dismissKeyboard(in: app, file: file, line: line)
+
+        // Scope gestures to the presented form/detail, never an arbitrary first list
+        // (which can belong to the screen behind a sheet).
+        let scroll = app.descendants(matching: .any).matching(identifier: containerID).firstMatch
+        let exists = scroll.waitForExistence(timeout: 5)
+        if !exists { attachInteractionFailure(app, element: element, containerID: containerID) }
+        _ = try XCTUnwrap(exists ? scroll : nil, "Missing scroll container \(containerID)", file: file, line: line)
         for _ in 0..<10 {
             if element.exists && element.isHittable { return }
             if upwards { scroll.swipeUp() } else { scroll.swipeDown() }
         }
-        XCTAssertTrue(element.exists && element.isHittable)
+        let reachable = element.exists && element.isHittable
+        if !reachable { attachInteractionFailure(app, element: element, containerID: containerID) }
+        // XCTUnwrap retains the reachability assertion and stops the workflow on failure.
+        let identifier = element.exists ? element.identifier : "requested control (absent)"
+        _ = try XCTUnwrap(reachable ? element : nil,
+                          "Could not reveal \(identifier) in \(containerID)", file: file, line: line)
+    }
+
+    @MainActor
+    private func dismissKeyboard(in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) throws {
+        // Full-frame swipes and pinned save controls can intersect the keyboard.
+        // End editing through the real toolbar action and wait for the state change.
+        let keyboard = app.keyboards.firstMatch
+        guard keyboard.exists else { return }
+        let hideKeyboard = app.buttons["form.hideKeyboard"]
+        let available = hideKeyboard.waitForExistence(timeout: 5)
+        if !available { attachInteractionFailure(app, element: hideKeyboard, containerID: "keyboard dismissal") }
+        _ = try XCTUnwrap(available ? hideKeyboard : nil, "Missing keyboard dismissal action", file: file, line: line)
+        hideKeyboard.tap()
+        let dismissed = keyboard.waitForNonExistence(timeout: 5)
+        if !dismissed { attachInteractionFailure(app, element: keyboard, containerID: "keyboard dismissal") }
+        _ = try XCTUnwrap(dismissed ? hideKeyboard : nil, "Keyboard still covers the form", file: file, line: line)
+    }
+
+    @MainActor
+    private func attachInteractionFailure(_ app: XCUIApplication, element: XCUIElement, containerID: String) {
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Unreachable control in \(containerID)"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        let target = element.exists ? "\(element.identifier), frame \(element.frame), hittable \(element.isHittable)" : "Absent from accessibility tree"
+        let hierarchy = XCTAttachment(string: "Target: \(target)\nContainer: \(containerID)\n\(app.debugDescription)")
+        hierarchy.name = "Form accessibility hierarchy"
+        hierarchy.lifetime = .keepAlways
+        add(hierarchy)
     }
 
     @MainActor

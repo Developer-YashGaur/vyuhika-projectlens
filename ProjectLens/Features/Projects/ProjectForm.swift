@@ -72,6 +72,7 @@ struct ProjectForm: View {
             footer: { Text("Dates describe the project. Financial summaries include all linked entries, regardless of date. Archiving keeps the project and its financial history; it can still receive entries.") }
             .listRowBackground(NeonOrbit.surface)
         }
+        .accessibilityIdentifier("project.form")
         .scrollContentBackground(.hidden)
         .background(NeonOrbit.background.ignoresSafeArea())
         .foregroundStyle(NeonOrbit.primaryText)
@@ -86,6 +87,7 @@ struct ProjectForm: View {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
                 Button("Hide Keyboard") { focused = nil }
+                    .accessibilityIdentifier("form.hideKeyboard")
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {

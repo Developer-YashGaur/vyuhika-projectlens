@@ -72,6 +72,7 @@ struct TransactionForm: View {
             footer: { Text("Stored on this device. Changing currency does not convert the amount. Project links require the same currency. Choosing No project unlinks this entry without deleting it.") }
             .listRowBackground(NeonOrbit.surface)
         }
+        .accessibilityIdentifier("transaction.form")
         .scrollContentBackground(.hidden)
         .background(NeonOrbit.background.ignoresSafeArea())
         .foregroundStyle(NeonOrbit.primaryText)
@@ -86,6 +87,7 @@ struct TransactionForm: View {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
                 Button("Hide Keyboard") { focused = nil }
+                    .accessibilityIdentifier("form.hideKeyboard")
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
