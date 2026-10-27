@@ -31,11 +31,11 @@ Spacing tokens: 4, 8, 16, 24, 32 and 48 pt. Controls have 16 pt radii; cards hav
 
 `NavigationShell` owns the selected tab and a single Quick Add presentation Boolean. Four native tabs each contain a NavigationStack: Home, Money, Projects and Upcoming. Selection begins at Home and is retained while a sheet opens or closes. The safe-area inset keeps the prominent Quick Add action above native tab chrome and away from scroll content. Native controls handle system adaptation; content is centered at a maximum 600 pt readable width on wide iPhones.
 
-`OrbitEmptyState` shares the visual layout while each destination has its own copy. These are honest previews of planned tools, not populated product screens. No sums, records, schedules or projects are fabricated.
+`OrbitEmptyState` shares the visual layout while each destination has its own copy. Empty ledgers and project lists explain their available create actions; only Upcoming remains a planned-tool preview. No sums, records, schedules or projects are fabricated.
 
 `QuickAddSheet` remains one native sheet with a pinned Done footer. Income and Expense now push a shared create form with an accessible pinned Save action and explicit Cancel. Successful saves close the sheet; validation/write failures retain the draft. Transfer and Recurring commitment remain labeled not yet available and show an explanation without saving. Reopening starts with no selection.
 
-Koshvya's Home displays only saved per-currency totals, with clear income/expense/net labels; an empty ledger keeps the branded empty state instead of invented balances. Money lists editable records and confirms deletion. Forms and lists use adaptive Neon Orbit surfaces and system typography; content can scroll around pinned actions and the keyboard.
+Koshvya's Home displays only saved per-currency totals, with clear income/expense/net labels; an empty ledger keeps the branded empty state instead of invented balances. Money lists editable records and confirms deletion. Projects uses native lists, forms and navigation with semantic Neon Orbit surfaces. Financial metrics stack labels above amounts, combine labels and values for VoiceOver, and use explicit profit/loss and over-budget text instead of color alone. Project forms keep Save pinned above the keyboard; details scroll at large text sizes. No custom animation was added. Forms and lists use adaptive Neon Orbit surfaces and system typography; content can scroll around pinned actions and the keyboard.
 
 
 ## Accessibility and motion

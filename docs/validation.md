@@ -1,5 +1,24 @@
 # Foundation validation
 
+## Phase 3 projects, budgets and profitability — 2026-10-27
+
+Branch: `feat/koshvya-project-finance`, based on fetched latest main `c18d245` (approved branding merge). Main is unchanged. Existing LedgerRepository/LedgerStore, transaction forms, branding, scheme and CI are reused; no dependency or backend was added.
+
+### Passed locally
+
+- **34 unit tests, zero failures**, finalized `build/Phase3FinalUnitTests.xcresult`, log `build/phase3-final-unit-tests.log`. Includes 14 existing ledger tests, 5 configuration/branding/contrast/motion tests and 15 project-finance tests. Coverage includes project CRUD/reload/archive/restore, validation and exact budget encoding, stable link/relink/unlink/rename, project deletion preserving transactions/totals, missing-link and currency guards, exact profitability versus budget consumption, over-budget profitable projects, schema-1 migration with unchanged transaction data and persistent project IDs, original-backup protection, corrupt/future schemas, concurrent project/transaction mutations, failed project disk writes and linked-transaction recalculation.
+- **All 8 UI tests passed across runs**: six existing navigation/branding/income/expense/Quick Add/accessibility-size tests passed in `build/Phase3UITests.xcresult`; both new project tests passed on corrected rerun in `build/Phase3ProjectUITests.xcresult` (**TEST SUCCEEDED**). New workflows create/edit/archive/relaunch a project and create a linked expense, verify budget/profit, relaunch, then unlink in Money while retaining the amount. The initial full UI run failed only the two new tests because their helper searched scroll/table containers, whereas this iOS SwiftUI form uses a collection view. The helper was corrected to support all three and both failed tests were rerun successfully. No untouched clean full-suite pass is claimed for that first bundle.
+- Final unsigned Release generic iPhone build: **BUILD SUCCEEDED**, `build/phase3-final-release.log`. Debug tests build app and both test targets. No special compiler flags or project/CI sandbox changes were required.
+- Inspected the retained project-finance screenshot exported to `build/phase3-project-screenshots/`: readable stacked budget metrics, remaining INR 87.66 after INR 12.34 expense, native linked-entry/actions list and Neon Orbit styling.
+- Project plist lint, shared-scheme XML and asset JSON parsing, CI shell syntax and `git diff --check` pass. Built Release Info.plist retains Koshvya display name, original bundle ID, phone-only family and AppIcon; both approved PNGs still match asset copies byte-for-byte.
+
+Local toolchain: Xcode 27.1 (27A9275), iPhone 18 Pro simulator / iOS 27.0. Host access was approved for CoreSimulator/builds. SDK build-version, duplicate simulator accessibility-class, AppIntents metadata and transient invalid-frame warnings occurred without assertion failures in passing runs. No Xcode toolchain warning is treated as a test result.
+
+### Remaining release verification
+
+Minimum iOS 17 runtime, physical-device locked-file behavior, complete light/dark/large-text project review and manual VoiceOver/Increase Contrast/Reduce Motion audits are not claimed. Existing accessibility-size Quick Add and asset contrast/motion unit checks passed. Signing, privacy disclosures and App Store packaging remain release work. Schema migration retains a historical financial backup with no in-app restore/erase UI; see [project finance](project-finance.md) and SECURITY.md for retention and recovery limitations. GitHub CI uses the unchanged Xcode 26.6/macOS 26 workflow; its status is reported separately on the PR.
+
+
 ## Phase 2.1 approved branding — 2026-10-27
 
 Branch: `feat/koshvya-approved-branding`, based on current `origin/main` (fetched and matched before publication). Main was not modified.

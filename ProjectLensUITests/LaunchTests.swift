@@ -128,6 +128,109 @@ final class LaunchTests: XCTestCase {
     }
 
     @MainActor
+    func testProjectCreationEditArchiveAndRelaunch() {
+        let app = isolatedApp()
+        app.launch()
+        createProject(app, name: "UI Project", budget: "1000")
+        projectRow(app, name: "UI Project").tap()
+        XCTAssertTrue(app.buttons["project.edit"].waitForExistence(timeout: 5))
+        app.buttons["project.edit"].tap()
+        let name = app.textFields["project.name"]
+        XCTAssertTrue(name.waitForExistence(timeout: 5))
+        name.tap()
+        name.typeText(" Renamed")
+        app.buttons["project.save"].tap()
+        XCTAssertTrue(app.navigationBars["UI Project Renamed"].waitForExistence(timeout: 5))
+        let archive = app.buttons["project.archive"]
+        scrollTo(archive, in: app, upwards: true)
+        archive.tap()
+        XCTAssertTrue(app.buttons["Restore project"].waitForExistence(timeout: 5))
+        app.terminate()
+        app.launch()
+        app.buttons["Projects"].tap()
+        let row = projectRow(app, name: "UI Project Renamed")
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        XCTAssertTrue(row.label.contains("Archived"))
+    }
+
+    @MainActor
+    func testLinkedExpenseUpdatesBudgetAndCanBeUnlinkedFromMoney() {
+        let app = isolatedApp()
+        app.launch()
+        createProject(app, name: "UI Linked Project", budget: "100")
+        projectRow(app, name: "UI Linked Project").tap()
+        let addExpense = app.buttons["project.addExpense"]
+        scrollTo(addExpense, in: app, upwards: true)
+        addExpense.tap()
+        let amount = app.textFields["transaction.amount"]
+        XCTAssertTrue(amount.waitForExistence(timeout: 5))
+        amount.tap(); amount.typeText("12.34")
+        let category = app.textFields["transaction.category"]
+        category.tap(); category.typeText("UI Linked Tools")
+        app.buttons["transaction.save"].tap()
+        XCTAssertTrue(app.buttons["project.edit"].waitForExistence(timeout: 5))
+        let remaining = app.descendants(matching: .any).matching(identifier: "project.remaining").firstMatch
+        scrollTo(remaining, in: app, upwards: false)
+        XCTAssertTrue(remaining.label.contains("87.66"))
+        let profit = app.descendants(matching: .any).matching(identifier: "project.profit").firstMatch
+        scrollTo(profit, in: app, upwards: false)
+        XCTAssertTrue(profit.label.contains("12.34"))
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Koshvya project budget and profitability"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        app.terminate()
+        app.launch()
+        app.buttons["Money"].tap()
+        let row = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "UI Linked Tools")).firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        XCTAssertTrue(row.label.contains("UI Linked Project"))
+        row.tap()
+        let picker = app.buttons["transaction.project"]
+        scrollTo(picker, in: app, upwards: true)
+        picker.tap()
+        app.buttons["No project"].tap()
+        app.buttons["transaction.save"].tap()
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        XCTAssertFalse(row.label.contains("Project:"))
+        XCTAssertTrue(row.label.contains("12.34"))
+    }
+
+    @MainActor
+    private func createProject(_ app: XCUIApplication, name: String, budget: String) {
+        app.buttons["Projects"].tap()
+        let create = app.buttons["project.create"]
+        XCTAssertTrue(create.waitForExistence(timeout: 10))
+        create.tap()
+        let field = app.textFields["project.name"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap(); field.typeText(name)
+        let amount = app.textFields["project.budget"]
+        scrollTo(amount, in: app, upwards: true)
+        amount.tap(); amount.typeText(budget)
+        app.buttons["project.save"].tap()
+        XCTAssertTrue(projectRow(app, name: name).waitForExistence(timeout: 5))
+    }
+
+    @MainActor
+    private func projectRow(_ app: XCUIApplication, name: String) -> XCUIElement {
+        app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "project.row.", name)).firstMatch
+    }
+
+    @MainActor
+    private func scrollTo(_ element: XCUIElement, in app: XCUIApplication, upwards: Bool) {
+        let scroll: XCUIElement
+        if app.collectionViews.firstMatch.exists { scroll = app.collectionViews.firstMatch }
+        else if app.scrollViews.firstMatch.exists { scroll = app.scrollViews.firstMatch }
+        else { scroll = app.tables.firstMatch }
+        for _ in 0..<10 {
+            if element.exists && element.isHittable { return }
+            if upwards { scroll.swipeUp() } else { scroll.swipeDown() }
+        }
+        XCTAssertTrue(element.exists && element.isHittable)
+    }
+
+    @MainActor
     private func isolatedApp() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "--ui-test-ledger", UUID().uuidString]
